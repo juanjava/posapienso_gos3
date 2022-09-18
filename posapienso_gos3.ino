@@ -4,8 +4,6 @@ falta arreglar hacer caso encoder para edicion de fecha y hora de sistema
 vigilar endoder que me esta dando la chapa
 testear botones analogicos y su funcionamiento por el mostrar_menu
 guardado de enables en eeprom seguramente arreglado, falta testeo*/
-
-
 ////////////STATUS/////////////STATUS/////////////
 
 /////////librerias//////////////
@@ -130,7 +128,7 @@ void setup() {
 }
 
 void iniciar_borrar_memoria_horas(){
-  Serial.println("Estoy en el iniciar_borrar_memoria_horas");
+  Serial.print(" iniciar_borrar_memoria_horas");
     ////poner a cero todo el array
   for (int i = 0; i < 3; i++) {
     for (int j = 0; j < 2; j++) {

@@ -1,8 +1,10 @@
 
+
+
 ///////////////////////////funciones poner pienso////////////////////////////////////////////////////
 
 void ponerpienso(int numerocomidaaa) {
-  Serial.println("Estoy en el ponerpienso");
+  Serial.print(" ponerpienso");
   cantidad = cantidades[numerocomidaaa];
   milliscant = millis();
   abrirtrampilla();
@@ -38,7 +40,7 @@ void menear_pienso() {
 ///////////PRIMERO MOSTRAR EN PANTALLA LO QUE TOQUE///////////////
 void pantallasajustes(){
   if(ajustando_reloj_sistema){
-    Serial.println("Estoy en el ajustando_reloj_sistema - pantallasajustes");
+    Serial.print("ajustando_reloj_sistema - pantallasajustes");
     if (ajustandominuto) {
       ajustar_minuto();
     }else if (ajustandohora) {
@@ -66,7 +68,7 @@ void pantallasajustes(){
   }
 }
 void llenarpantalla() {
-  Serial.println("Estoy en el llenarpantalla");
+  Serial.print ("Estoy en el llenarpantalla -");
   if(!ajustando_reloj_sistema||!ajustandoalgo){
     mostrar_menu();////MENU EN SI
   }else{
@@ -74,12 +76,13 @@ void llenarpantalla() {
   }
 }
 void mostrar_menu() {///escribe la priumera linea, y la segunda si hay mas para escribir
+  Serial.print(" mostrar_menu -");
   lcd.setCursor(0, 0);///desplazo algo a la derecha el elemento seleccionado
   lcd.print(">");///flecha
   mostrarlinea(posscroll);
-  lcd.print("            ");///BORRAR CARACTERES VIEJOS
+  Serial.println();
+  lcd.print("      ");///BORRAR CARACTERES VIEJOS
   lcd.setCursor(0, 1);
-Serial.println("Estoy en el mostrar_menu");
   byte aux = posscroll / 10; ////fila para minmax
   if (posscroll >= minmax[aux][1]) {
     ////no imprimo nada; puede quedar la de abajo vacia///
@@ -97,13 +100,14 @@ Serial.println("Estoy en el mostrar_menu");
       lcd.print(minuto);
     }
   } else {
+    Serial.print(" mostrar_menu -");
     mostrarlinea(posscroll + 1); ////la siguiente
   }
   lcd.print("                   ");////////quito restos de caracteres viejos
 }
 void mostrarlinea(int lineamenu) {////llamo a las de abajo, solo para dividir el switch case
-  Serial.print("mostrarlinea  ");
-  Serial.println(lineamenu);
+  Serial.print(" mostrarlinea-");
+  Serial.print(lineamenu);
   if (lineamenu >= 0 && lineamenu < 10) {
     menuinicio(lineamenu);
   } else if (lineamenu >= 10 && lineamenu < 20) {
@@ -113,10 +117,11 @@ void mostrarlinea(int lineamenu) {////llamo a las de abajo, solo para dividir el
   } else if (lineamenu >= 30 && lineamenu < 40) {
     submenu3(lineamenu);
   } else {}
+  Serial.print(lineamenu);
 }
 void menuinicio(int lineamenu) {
   Serial.print(" menuinicio ");
-  Serial.println(lineamenu);
+  Serial.print (lineamenu);
   submenu = 0;
   switch (lineamenu) {
     case 0:
@@ -137,7 +142,7 @@ void menuinicio(int lineamenu) {
   }
 }
 void submenu1(int lineamenu) {
-  Serial.println("submenu1");
+  Serial.print(" submenu1 -");
   submenu = 1;
   switch (lineamenu) {
     case 10:
@@ -173,7 +178,7 @@ void submenu1(int lineamenu) {
 }
 void submenu2(int lineamenu) {
   submenu = 2;
-  Serial.println("submenu2");
+  Serial.print(" submenu2 ");
   switch (lineamenu) {
     case 20:
       lcd.print("AJ HORA");
@@ -208,7 +213,7 @@ void submenu2(int lineamenu) {
 }
 void submenu3(int lineamenu) {///on//off/brillo//volver
   submenu = 3;
-  Serial.println("submenu3");
+  Serial.print("submenu3 ");
   switch (lineamenu) {
     case 30:
       lcd.print("AJ HORA");
@@ -361,8 +366,13 @@ void mirarboton_menu_lcd(){/////////////ARREGLADO
     ultimoclick = posscroll;
     Serial.print("Elemento pulsado: ");
     Serial.println(ultimoclick);
-    sacar_variables_serial();
+    ///sacar_variables_serial();
     hacer_caso_boton2();
+  }if(!digitalRead(SW)&&(ajustando_reloj_sistema||ajustandoalgo)&&botonpulsado == false;){
+    hacer_caso_boton2();
+    botonpulsado=true;
+  }else{
+    botonpulsado = false;
   }  /*    
     if(!digitalRead(SW) && ajustandoled){/// solo cuando ajustandoled = true
       ajustandoled=false;///SALGO DE AHI

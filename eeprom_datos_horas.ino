@@ -6,7 +6,6 @@
   15-20   enable1 enable2 enable3
   20-25 fecha compilacion  dia mes año(22) hora minuto
 */
-
 void cargar_variables_eeprom() {
   cargar_hora();
   cargar_horas_comidas();
