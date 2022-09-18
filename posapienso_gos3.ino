@@ -8,9 +8,9 @@ guardado de enables en eeprom seguramente arreglado, falta testeo*/
 
 /////////librerias//////////////
 #include <Wire.h>
-#include "RTClib.h"
+#include <RTClib.h>
+//#include "RTClib.h"
 ///#include <LiquidCrystal_I2C.h>/////una o la otra
-/////lcd shield vamos a ver
 #include <LiquidCrystal.h>
 #include <EEPROM.h>
 #include <Servo.h>
@@ -39,7 +39,7 @@ Servo servomeneo;
 /////////////////////VARIABLES///////////////////////////
 
 ///////////////EL MENU////////////////////////
-byte submenu = 0; ///ANDE ANDO
+///byte submenu = 0; ///ANDE ANDO
 int posscroll = 0;///////////donde estoy en el menu()
 int count = 0;//Define the count
 int lastCLK = 0;//CLK initial value
@@ -73,6 +73,8 @@ boolean ajustandohora = false;///metido en encoder (ClockChanged) y en ajustarbr
 boolean ajustandominuto = false;///metido en encoder (ClockChanged) y en ajustarbrilloled
 boolean ajustandocantidad = false;///metido en encoder (ClockChanged) y en ajustarbrilloled
 boolean ajustandoestado = false;///metido en encoder (ClockChanged) y en ajustarbrilloled
+////reloj sistema: pòsscroll 50,51,52,53,54
+//ajustes horas y demas: *10
 
 //////////////////////////////COMIDAS///////////////////////////////////////
 byte numerocomida = 0;////para todo, cargar, guardar, etc
@@ -92,13 +94,13 @@ boolean pos_servo = false;
 boolean piensopuesto = false;
 byte hora = 0;
 byte minuto = 0;
-byte dia_semana = 0;
+//byte dia_semana = 0;
 byte mes = 0;
-byte anyo = 0;
+int anyo = 0;
 byte dia = 0;
 //////////////////////////RELOJ RTC////////////
-String daysOfTheWeek[7] = { "Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado" };
-String monthsNames[12] = { "Enero", "Febrero", "Marzo", "Abril", "Mayo",  "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre" };
+//String daysOfTheWeek[7] = { "Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado" };
+///String monthsNames[12] = { "Enero", "Febrero", "Marzo", "Abril", "Mayo",  "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre" };
 
 
 void setup() {
@@ -147,28 +149,21 @@ void loop() {
   mirarboton_menu_lcd();
   horapienso();
   ///mostrar_encoder();
-  /*
-    lcd.setCursor(0, 0);
-    menuinicio(0);
-    lcd.setCursor(0, 1);
-    menuinicio(1);*/
   ///volcado_variables_serial();
   Serial.println(posscroll);
-  if(posscroll>34){
-    
-    Serial.print("Error critico desconocido submenu,posscroll,numerocomida");
-    Serial.print(submenu);
+  /*if(posscroll>34){    
+    Serial.print("Error critico desconocido posscroll,numerocomida");
     Serial.print("  ");
     Serial.print(posscroll);
     Serial.print("  ");
     Serial.println(numerocomida);
     posscroll=0;
-  }
+  }*/
   Serial.println("");
   Serial.println("");
   Serial.println("");
 }
-void volcado_variables_serial(){
+void volcado_variables_serial(){//////cada segundo
   if (millis() > (millisdebug + 1000)) {
     millisdebug = millis();
       mostrar_datos_cargados();
@@ -181,7 +176,7 @@ void cargar_hora() {
   if (rtc.begin()) { ////si está
     if (rtc.lostPower()) {///le quitastes la pila
       // Fijar a fecha y hora de compilacion
-      rtc.adjust(DateTime(2022, 7, 12, 20, 27, 0));
+      rtc.adjust(DateTime(2022, 9, 18, 20, 27, 0));
     } else {///tenia pila
       // Obtener fecha actual y mostrar por Serial
       DateTime now = rtc.now();
@@ -198,7 +193,6 @@ void cargar_hora() {
 
 void horapienso() {
   DateTime ahora = rtc.now();
-
   ////boolean comidas_habilitadas[3] = {false, false, false};///HABILITADAS O NO//
   for (byte i = 0; i < 3; i++) {
     if (horas[i][0] == ahora.hour()) {
@@ -217,14 +211,9 @@ void horapienso() {
         piensopuesto = false;
       }
     }
-  }/*
-  Serial.print(date.hour(), DEC);
-  Serial.print(':');
-  Serial.print(date.minute(), DEC);
-  Serial.print(':');
-  Serial.print(date.second(), DEC);*/
+  }///fin for
 }
-
+/*
 void printDate(DateTime date) {
   Serial.print(date.year(), DEC);
   Serial.print('/');
@@ -240,7 +229,7 @@ void printDate(DateTime date) {
   Serial.print(':');
   Serial.print(date.second(), DEC);
   Serial.println();
-}
+}*/
 void cargar_fecha_hora(DateTime date) {
   anyo = date.year(), DEC;
   mes = date.month(), DEC;
@@ -248,28 +237,20 @@ void cargar_fecha_hora(DateTime date) {
   hora = date.hour(), DEC;
   minuto = date.minute(), DEC;
 }
-// Comprobar si esta programado el encendido
-bool isScheduledON(DateTime date) {
-  int weekDay = date.dayOfTheWeek();
-  float hours = date.hour() + date.minute() / 60.0;
-
-  // De 09:30 a 11:30 y de 21:00 a 23:00
-  bool hourCondition = (hours > 9.50 && hours < 11.50) || (hours > 21.00 && hours < 23.00);
-
-  // Miercoles, Sabado o Domingo
-  bool dayCondition = (weekDay == 3 || weekDay == 6 || weekDay == 0);
-  if (hourCondition && dayCondition)
-  {
-    return true;
-  }
-  return false;
+void cargar_fecha_hora_auto() {
+   if (rtc.begin())  {//si está
+    DateTime date = rtc.now();
+    anyo = date.year(), DEC;
+    mes = date.month(), DEC;
+    dia = date.day();
+    hora = date.hour(), DEC;
+    minuto = date.minute(), DEC;
+   }
 }
+// Comprobar si esta programado el encendido
+
 void cambiar_hora_reloj(){
-  /*byte hora = 0;
-byte minuto = 0;
-byte dia_semana = 0;
-byte mes = 0;
-byte año = 0;*/
+  /*byte hora = 0;byte minuto = 0;byte dia_semana = 0;byte mes = 0;byte año = 0;*/
    if (rtc.begin()) { ////si está
     rtc.adjust(DateTime(anyo, mes, dia, hora, minuto, 0));
     lcd.setCursor(0,0);
@@ -325,9 +306,18 @@ void mostrar_datos_cargados() {
     Serial.print("cantidad: ");
     Serial.println(cantidades[2]);
     Serial.println();
-    Serial.println();
-}
-void mostrar_ajustes() {
+    Serial.print("hora sistema: ");
+          cargar_hora();
+      Serial.print(anyo);
+      Serial.print("YY");
+      Serial.print(dia);
+      Serial.print("d");
+      Serial.print(mes);
+      Serial.print("M");
+      Serial.print(hora);
+      Serial.print(":");
+      Serial.println(minuto);
+      mostrar_encoder();
 }
 void mostrar_encoder() {
   int clkValue = digitalRead(CLK);//Read the CLK pin level
@@ -340,17 +330,4 @@ void mostrar_encoder() {
   Serial.print(" SW ");
   Serial.println(swvalue);
 }
-/*//////////////////ESTADOS AJUSTES//////////////////////
-  boolean ajustan               do_reloj_sistema = false;
-  boolean ajustandoalgo = false;///metido en encoder (ClockChanged) y en ajustarbrilloled
-  boolean ajustandohora = false;///metido en encoder (ClockChanged) y en ajustarbrilloled
-  boolean ajustandominuto = false;///metido en encoder (ClockChanged) y en ajustarbrilloled
-  boolean ajustandocantidad = false;///metido en encoder (ClockChanged) y en ajustarbrilloled
-  boolean ajustandoestado = false;///metido en encoder (ClockChanged) y en ajustarbrilloled
 
-  //////////////////////////////COMIDAS///////////////////////////////////////
-  byte numerocomida = 0;////para todo, cargar, guardar, etc
-  int horas[3][2];///HORAS y minutos
-  boolean comidas_habilitadas[3] = {false, false, false};///HABILITADAS O NO//
-  int cantidades[3] = {0, 0, 0};
-  int cantidad = 0;////VARIABLE AUX*/

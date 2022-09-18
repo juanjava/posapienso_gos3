@@ -1,6 +1,3 @@
-
-
-
 ///////////////////////////funciones poner pienso////////////////////////////////////////////////////
 
 void ponerpienso(int numerocomidaaa) {
@@ -38,21 +35,21 @@ void menear_pienso() {
 
 
 ///////////PRIMERO MOSTRAR EN PANTALLA LO QUE TOQUE///////////////
-void pantallasajustes(){
-  if(ajustando_reloj_sistema){
+void pantallasajustes() {
+  if (ajustando_reloj_sistema) {
     Serial.print("ajustando_reloj_sistema - pantallasajustes");
     if (ajustandominuto) {
       ajustar_minuto();
-    }else if (ajustandohora) {
+    } else if (ajustandohora) {
       ajustar_hora();
-    }else if(ajustando_anyo){
+    } else if (ajustando_anyo) {
       ajustar_anyo();
     } else {
       ajustando_reloj_sistema = false;
       ajustandoalgo = false;
     }
-  }else if (ajustandoalgo) {
-   if (ajustandohora) {
+  } else if (ajustandoalgo) {
+    if (ajustandohora) {
       ajustar_hora();
     } else if (ajustandominuto) {
       ajustar_minuto();
@@ -67,11 +64,41 @@ void pantallasajustes(){
     mostrar_menu();////MENU EN SI
   }
 }
+void pantallasajustes_posscroll(){
+  ////reloj sistema: pòsscroll 50,51,52,53,54
+//ajustes horas y demas: *10
+  if(posscroll<100){
+        switch (posscroll) {
+    case 50:
+      ajustar_anyo();
+      break;
+    case 51:
+      ajustar_mes();
+      break;
+    case 52:
+      ajustar_hora_reloj();
+      break;
+    case 53:
+      ajustar_minuto_reloj()
+      break;
+    case 54:
+    posscroll = 0;
+    ultimoclick = 0;  
+    default:
+      // statements
+      break;
+  }
+  }else{/////esto seran pantallas ajustes 
+
+  }
+
+}
+
 void llenarpantalla() {
   Serial.print ("Estoy en el llenarpantalla -");
-  if(!ajustando_reloj_sistema||!ajustandoalgo){
+  if (!ajustando_reloj_sistema || !ajustandoalgo) {
     mostrar_menu();////MENU EN SI
-  }else{
+  } else {
     pantallasajustes();
   }
 }
@@ -79,16 +106,17 @@ void mostrar_menu() {///escribe la priumera linea, y la segunda si hay mas para 
   Serial.print(" mostrar_menu -");
   lcd.setCursor(0, 0);///desplazo algo a la derecha el elemento seleccionado
   lcd.print(">");///flecha
+  lcd.setCursor(1, 0);
   mostrarlinea(posscroll);
   Serial.println();
   lcd.print("      ");///BORRAR CARACTERES VIEJOS
-  lcd.setCursor(0, 1);
+  lcd.setCursor(0, 1);///linea de abajo
   byte aux = posscroll / 10; ////fila para minmax
   if (posscroll >= minmax[aux][1]) {
     ////no imprimo nada; puede quedar la de abajo vacia///
-    if(posscroll==3){
-            ////mostrarhora reloj en pantalla
-      ///lcd.setCursor(0, 1);
+    if (posscroll == 3) { ///lcd.print("AJUSTAR RELOJ");
+      ////mostrarhora en pantalla
+      cargar_hora();
       lcd.print(anyo);
       lcd.print("YY");
       lcd.print(dia);
@@ -122,7 +150,6 @@ void mostrarlinea(int lineamenu) {////llamo a las de abajo, solo para dividir el
 void menuinicio(int lineamenu) {
   Serial.print(" menuinicio ");
   Serial.print (lineamenu);
-  submenu = 0;
   switch (lineamenu) {
     case 0:
       lcd.print("COMIDA 1");
@@ -143,10 +170,9 @@ void menuinicio(int lineamenu) {
 }
 void submenu1(int lineamenu) {
   Serial.print(" submenu1 -");
-  submenu = 1;
   switch (lineamenu) {
     case 10:
-      lcd.print("AJ HORA");
+      lcd.print("AJ HORA ");
       lcd.print(horas[0][0]);
       lcd.print(":");
       lcd.print(horas[0][1]);
@@ -177,11 +203,10 @@ void submenu1(int lineamenu) {
   }
 }
 void submenu2(int lineamenu) {
-  submenu = 2;
   Serial.print(" submenu2 ");
   switch (lineamenu) {
     case 20:
-      lcd.print("AJ HORA");
+      lcd.print("AJ HORA ");
       lcd.print(horas[1][0]);
       lcd.print(":");
       lcd.print(horas[1][1]);
@@ -212,11 +237,10 @@ void submenu2(int lineamenu) {
   }
 }
 void submenu3(int lineamenu) {///on//off/brillo//volver
-  submenu = 3;
   Serial.print("submenu3 ");
   switch (lineamenu) {
     case 30:
-      lcd.print("AJ HORA");
+      lcd.print("AJ HORA ");
       lcd.print(horas[2][0]);
       lcd.print(":");
       lcd.print(horas[2][1]);
@@ -256,8 +280,8 @@ void submenu3(int lineamenu) {///on//off/brillo//volver
 void ajustar_reloj_sistema() {
   Serial.println("estoy en el ajustar_reloj_sistema");
   ajustando_reloj_sistema = true;
-    ajustandoalgo = true;
-    ajustar_anyo();
+  ajustandoalgo = true;
+  ajustar_anyo();
 }
 void ajustar_anyo() {
   Serial.println("estoy en el ajustar_anyo");
@@ -279,6 +303,33 @@ void ajustar_mes() {
   lcd.setCursor(0, 1);
   lcd.print("MES:");
   lcd.print(mes);
+}
+void ajustar_hora_reloj(){
+  Serial.println("estoy en el ajustar_hora_reloj");
+  ajustando_reloj_sistema = true;
+  ajustandoalgo = true;
+  ajustando_mes = true;
+    lcd.setCursor(1, 0);///desplazo algo a la derecha el elemento seleccionado
+  lcd.print("AJUSTANDO HORA :");
+  lcd.setCursor(0, 1);
+  lcd.print("hora:");
+  lcd.print(hora);
+  lcd.print(":");
+  lcd.print(minuto);
+
+}
+void ajustar_minuto_reloj(){
+  Serial.println("estoy en el ajustar_minuto_reloj");
+  ajustando_reloj_sistema = true;
+  ajustandoalgo = true;
+  ajustando_mes = true;
+  lcd.setCursor(1, 0);///desplazo algo a la derecha el elemento seleccionado
+  lcd.print("AJUSTANDO MINUTO :");
+  lcd.setCursor(0, 1);
+  lcd.print("hora:");
+  lcd.print(hora);
+  lcd.print(":");
+  lcd.print(minuto);
 }
 void ajustar_hora() {
   Serial.println("estoy en el ajustar_hora");
@@ -346,34 +397,38 @@ void mirarboton() {///// CON MILLIS
       ///Serial.println("                                boton pulsado y caso casoooo");
       if (!botonpulsado) { ////antirebote//anti aguantar
         hacer_caso_boton2();
-        if(ultimoclick!=posscroll){///no volver a metermen dos veces en el mismo sitio
-          ultimoclick=posscroll;
+        if (ultimoclick != posscroll) { ///no volver a metermen dos veces en el mismo sitio
+          ultimoclick = posscroll;
           ///hacer_caso_boton2();
-        }        
+        }
         botonpulsado = true;
         /*
-        Serial.print("Elemento pulsado: ");
-        Serial.println(posscroll);*/
-      }else{botonpulsado = true;
-      ///millisantes_enc = millis();
+          Serial.print("Elemento pulsado: ");
+          Serial.println(posscroll);*/
+      } else {
+        botonpulsado = true;
+        ///millisantes_enc = millis();
       }
-    } else {botonpulsado = false;}
+    } else {
+      botonpulsado = false;
+    }
   }//fin else he pulsado
 }
-void mirarboton_menu_lcd(){/////////////ARREGLADO
-    if (!digitalRead(SW) && (ultimoclick != posscroll)) //leo el boton y asigno posscroll a elementopulsado
+void mirarboton_menu_lcd() { /////////////ARREGLADO
+  if (!digitalRead(SW) && (ultimoclick != posscroll)) //leo el boton y asigno posscroll a elementopulsado
   {
     ultimoclick = posscroll;
     Serial.print("Elemento pulsado: ");
     Serial.println(ultimoclick);
     ///sacar_variables_serial();
     hacer_caso_boton2();
-  }if(!digitalRead(SW)&&(ajustando_reloj_sistema||ajustandoalgo)&&botonpulsado == false;){
+  }
+  if (!digitalRead(SW) && (ajustando_reloj_sistema || ajustandoalgo) && botonpulsado == false) {
     hacer_caso_boton2();
-    botonpulsado=true;
-  }else{
+    botonpulsado = true;
+  } else {
     botonpulsado = false;
-  }  /*    
+  }  /*
     if(!digitalRead(SW) && ajustandoled){/// solo cuando ajustandoled = true
       ajustandoled=false;///SALGO DE AHI
         ///elementopulsado=-1;
@@ -385,7 +440,6 @@ void mirarboton_menu_lcd(){/////////////ARREGLADO
 void hacer_caso_boton() { ///esto se hara cuando pulse el boton///VERSION CORTA //AJUSTANDO ALGO NO IMPLEMENTADO//
   /////////////AJUSTANDO ALGO NO IMPLEMENTADO////////////
   if (posscroll >= 0 && posscroll < 10) { ///pulso boton en menu inicio
-    submenu = 0;
     if (posscroll == 3) {////("AJUSTAR RELOJ");
       ajustandoalgo = true;
       ajustar_reloj_sistema();
@@ -396,155 +450,164 @@ void hacer_caso_boton() { ///esto se hara cuando pulse el boton///VERSION CORTA 
     } else {}
 
 
-  } else { //////////mayor de 10, estoy en un subapartado    
-      calcular_submenu_numerocomida();
-      submenu_actuar(posscroll % 10);//int subapartado = posscroll % 10; //% DEVUELVE EL RESTO DE LA DIVISION
+  } else { //////////mayor de 10, estoy en un subapartado
+    calcular_submenu_numerocomida();
+    submenu_actuar(posscroll % 10);//int subapartado = posscroll % 10; //% DEVUELVE EL RESTO DE LA DIVISION
   }
 }
 void  hacer_caso_boton2() {/////////////////VERSION LARGA
-  if(ajustando_reloj_sistema){
-    if(ajustando_anyo){
-      ajustando_anyo= false;
-      ajustando_mes=true;
-    }else if(ajustando_mes){
-      ajustando_mes=false;
+  if (ajustando_reloj_sistema) {
+    if (ajustando_anyo) {
+      ajustando_anyo = false;
+      ajustando_mes = true;
+    } else if (ajustando_mes) {
+      ajustando_mes = false;
       ajustandohora = true;
-    }else if(ajustandohora){
-        ajustandohora =false;
-        ajustandominuto = true;        
-      }else if(ajustandominuto){
-        ajustandominuto = false;
-        ajustando_reloj_sistema = false;
-      }else{}
-      delay(2000);
-    }else if (ajustandoalgo) { ///al pulsar sale de ahi
+    } else if (ajustandohora) {
+      ajustandohora = false;
+      ajustandominuto = true;
+    } else if (ajustandominuto) {
+      ajustandominuto = false;
+      ajustando_reloj_sistema = false;
+    } else {}
+    delay(2000);
+  } else if (ajustandoalgo) { ///al pulsar sale de ahi
     salir_de_todo();
     salir_a_menu_inicio();
   } else {/////AQUI VA EL SWITCH DE ABAJO
-  /*void entrarsubmenu() {
-    numerocomida = posscroll;/////importante
-    posscroll++;
-    posscroll = posscroll * 10; ///me meto en submenu; opcion 0 ha de acabar en opcion 10
-    }*/
-  switch (posscroll) {
-    case 0:
-      entrarsubmenu();
-      break;
-    case 1:
-      entrarsubmenu();
-      break;
-    case 2:
-      entrarsubmenu();
-      break;
-    case 3:///lcd.print("AJUSTAR RELOJ");
-      ajustar_reloj_sistema();
-      break;
-
-    case 10:///lcd.print("AJUSTAR HORA");
-      submenu = (posscroll / 10); ////submenu 1, comida 0, posscroll 10
-      numerocomida = submenu - 1;
-      ajustar_hora();
-      break;
-    case 11:///lcd.print("AJUSTAR cantidad");
-      submenu = (posscroll / 10); ////submenu 1, comida 0, posscroll 10
-      numerocomida = submenu - 1;
-      ajustandoalgo = true;
-      ajustandocantidad = true;
-      ajustar_cantidad();
-      break;
-    case 12://///lcd.print("habilitar");
-      submenu = (posscroll / 10); ////submenu 1, comida 0, posscroll 10
-      numerocomida = submenu - 1;
-      ajustandoalgo = true;
-      ajustandoestado = true;
-      ajustar_habilitar_comida();
-      break;
-    case 13://///lcd.print("test");
-      submenu = (posscroll / 10); ////submenu 1, comida 0, posscroll 10
-      numerocomida = submenu - 1;
-      ponerpienso(numerocomida);
-      break;
-    case 14:
-      submenu = (posscroll / 10); ////submenu 1, comida 0, posscroll 10
-      numerocomida = submenu - 1;
-      /////salimos
-      posscroll = numerocomida;
-      submenu = 0;
-      break;
-    //////VES COMO SE REPITE CODIGO??
-    ///POR ESO LA MANIA DE CREAR FUNCIONES
-    /*void calcular_submenu_numerocomida(){
-          submenu = (posscroll / 10); ///submenu 1, comida 0, posscroll 10
-          numerocomida = submenu - 1;
+    /*void entrarsubmenu() {
+      numerocomida = posscroll;/////importante
+      posscroll++;
+      posscroll = posscroll * 10; ///me meto en submenu; opcion 0 ha de acabar en opcion 10
       }*/
-    case 20://///lcd.print("ajustar hora");
-      calcular_submenu_numerocomida();
-      submenu_actuar(0);
-      break;
-    case 21://///lcd.print("ajustar cantidad");
-      calcular_submenu_numerocomida();
-      submenu_actuar(1);
-      break;
-    case 22://///lcd.print("habilitar");
-      calcular_submenu_numerocomida();
-      submenu_actuar(2);
-      break;
-    case 23://///lcd.print("test");
-      calcular_submenu_numerocomida();
-      ponerpienso(3);
-      break;
-    case 24:
-      salir_a_menu_inicio();
-      break;
-    /*    case 30:
-        lcd.print("AJUSTAR HORA");
+    switch (posscroll) {
+      case 0:
+        entrarsubmenu();
+        break;
+      case 1:
+        entrarsubmenu();
+        break;
+      case 2:
+        entrarsubmenu();
+        break;
+      case 3:///lcd.print("AJUSTAR RELOJ");
+        ajustar_reloj_sistema();
+        break;
+
+      case 10:///lcd.print("AJUSTAR HORA");
+        numerocomida = 0;///(posscroll / 10) - 1;////0
+        ajustar_hora();
+        break;
+      case 11:///lcd.print("AJUSTAR cantidad");
+        numerocomida = 0;
+        ajustandoalgo = true;
+        ajustandocantidad = true;
+        ajustar_cantidad();
+        break;
+      case 12://///lcd.print("habilitar");
+        numerocomida = 0;
+        ajustandoalgo = true;
+        ajustandoestado = true;
+        ajustar_habilitar_comida();
+        break;
+      case 13://///lcd.print("test");
+        numerocomida = 0;
+        ponerpienso(numerocomida);
+        break;
+      case 14:
+        numerocomida = 0;
+        /////salimos
+        posscroll = numerocomida;
+        break;
+      //////VES COMO SE REPITE CODIGO??
+      ///POR ESO LA MANIA DE CREAR FUNCIONES
+
+      case 20://///lcd.print("ajustar hora");
+        calcular_numerocomida();
+        submenu_actuar(0);
+        break;
+      case 21://///lcd.print("ajustar cantidad");
+        calcular_numerocomida();
+        submenu_actuar(1);
+        break;
+      case 22://///lcd.print("habilitar");
+        calcular_numerocomida();
+        submenu_actuar(2);
+        break;
+      case 23://///lcd.print("test");
+        calcular_numerocomida();
+        ponerpienso(3);
+        break;
+      case 24:
+        salir_a_menu_inicio();
+        break;
+      /*    case 30:
+          lcd.print("AJUSTAR HORA");
+        case 31:
+          lcd.print("AJUSTAR CANTIDAD");
+        case 32:
+          lcd.print("HABILITAR ");
+        case 33:
+          lcd.print("TEST");
+        case 34:
+          lcd.print("VOLVER");*/
+      case 30:
+        calcular_numerocomida();
+        submenu_actuar(0);
+        break;
       case 31:
-        lcd.print("AJUSTAR CANTIDAD");
+        calcular_numerocomida();
+        submenu_actuar(1);
+        break;
       case 32:
-        lcd.print("HABILITAR ");
+        calcular_numerocomida();
+        submenu_actuar(2);
+        break;
       case 33:
-        lcd.print("TEST");
+        calcular_numerocomida();
+        ponerpienso(numerocomida);
+        break;
       case 34:
-        lcd.print("VOLVER");*/
-    case 30:
-      calcular_submenu_numerocomida();
-      submenu_actuar(0);
-      break;
-    case 31:
-      calcular_submenu_numerocomida();
-      submenu_actuar(1);
-      break;
-    case 32:
-      calcular_submenu_numerocomida();
-      submenu_actuar(2);
-      break;
-    case 33:
-      calcular_submenu_numerocomida();
-      ponerpienso(numerocomida);
-      break;
-    case 34:
-      salir_a_menu_inicio();
-      break;
-  }}
+        salir_a_menu_inicio();
+        break;
+    }
+  }
 }
-void calcular_submenu_numerocomida() {
-  submenu = (posscroll / 10); ///submenu 1, comida 0, posscroll 10
-  numerocomida = submenu - 1;
+void calcular_numerocomida() {
+  numerocomida = (posscroll / 10) - 1;
 }
 void entrarsubmenu() {
   numerocomida = posscroll;/////importante
   posscroll++;
   posscroll = posscroll * 10; ///me meto en submenu; opcion 0 ha de acabar en opcion 10
+  ultimoclic=posscroll;
+}
+void entrar_pantalla_ajuste_variable() {
+  ////reloj sistema: pòsscroll 50,51,52,53,54
+  //ajustes horas y demas: *10
+if(posscroll==3){
+  posscroll=50;
+}else{
+  posscroll = posscroll*10;
+}
 }
 void submenu_actuar(int subapartado) {///////////////////////
   if (subapartado == 0) {///lcd.print("AJUSTAR HORA");
+    posscroll = posscroll * 10;
+    ultimoclick = posscroll;
     ajustar_hora();
   }  else if (subapartado == 1) {///lcd.print("AJUSTAR CANTIDAD");
-  ajustar_cantidad();
+    ajustar_cantidad();
+    posscroll = posscroll * 10;
+    ultimoclick = posscroll;
   }  else if (subapartado == 2) {///lcd.print("HABILITAR ");
-  ajustar_habilitar_comida();
+    ajustar_habilitar_comida();
+    posscroll = posscroll * 10;
+    ultimoclick = posscroll;
   }  else if (subapartado == 3) {
     ponerpienso(numerocomida);
+    posscroll = posscroll * 10;
+    ultimoclick = posscroll;
   } else if (subapartado == 4) {///lcd.print("VOLVER");*/
     ///////VOLVER A MENU INICIO
     salir_a_menu_inicio();
@@ -555,10 +618,11 @@ void salir_a_menu_inicio() {
   numerocomida = submenu - 1;
   /////salimos
   posscroll = numerocomida;
+  ultimoclick = posscroll;
   submenu = 0;
 }
 void salir_de_todo() { //lo llamo tb desde izquierda
-if (ajustandominuto) {
+  if (ajustandominuto) {
     ajustandominuto = false;
     ajustandoalgo = false;
     guardar_horario(numerocomida);
@@ -569,7 +633,7 @@ if (ajustandominuto) {
   }  else if (ajustandocantidad) {
     ajustandocantidad = false;
     ajustandoalgo = false;
-   guardarcantidad(numerocomida, cantidades[numerocomida]); ////////////////////////////////////////////
+    guardarcantidad(numerocomida, cantidades[numerocomida]); ////////////////////////////////////////////
   } else if (ajustandoestado) {
     ajustandoestado = false;
     ajustandoalgo = false;
@@ -588,22 +652,22 @@ if (ajustandominuto) {
 void ClockChanged() {////////////del ejemplo del encoder
   int clkValue = digitalRead(CLK);//Read the CLK pin level
   int dtValue = digitalRead(DT);//Read the DT pin level
- Serial.println("Encoder"); 
- Serial.println("                                                endoder");
-    if (!ajustandoalgo&!ajustando_reloj_sistema) { ///no estoy ajustando nada
-      if (clkValue == dtValue) {
-        sumando();
-      } else {
-        restando();
-      }
-    } else { ////ajustando algun valor
-      if (clkValue == dtValue) {
-        ajustar_valores_encoder_sumando(true);
-      } else {
-        ajustar_valores_encoder_sumando(false);
-      }
-      ///ajustar_valores_encoder(clkValue, dtValue);
-    }/////fin del else de ajustando algo
+  Serial.println("Encoder");
+  Serial.println("                                                endoder");
+  if (!ajustandoalgo & !ajustando_reloj_sistema) { ///no estoy ajustando nada
+    if (clkValue == dtValue) {
+      sumando();
+    } else {
+      restando();
+    }
+  } else { ////ajustando algun valor
+    if (clkValue == dtValue) {
+      ajustar_valores_encoder_sumando(true);
+    } else {
+      ajustar_valores_encoder_sumando(false);
+    }
+    ///ajustar_valores_encoder(clkValue, dtValue);
+  }/////fin del else de ajustando algo
   sacar_variables_serial();
 }
 void sumando() {
@@ -612,7 +676,7 @@ void sumando() {
     posscroll++;
     Serial.println("Sumando:  ");
   }
-   delay(200);
+  delay(200);
 }
 void restando() {
   Serial.println("Restando");
@@ -631,14 +695,16 @@ void ajustar_valores_encoder_sumando(boolean sumando) {
         ///hora++;
         horas[numerocomida][0]++;
       }
-      if(horas[numerocomida][0]>23){
-        horas[numerocomida][0] = 23;}
+      if (horas[numerocomida][0] > 23) {
+        horas[numerocomida][0] = 23;
+      }
     } else {
       if (horas[numerocomida][0] > 0) {
         //hora--;
         horas[numerocomida][0]--;
-      }if(horas[numerocomida][0]<0){
-        horas[numerocomida][0]=0;}
+      } if (horas[numerocomida][0] < 0) {
+        horas[numerocomida][0] = 0;
+      }
     }
     ///horas[numerocomida][0] = hora;
   } else if (ajustandominuto) {
@@ -756,7 +822,7 @@ void case_boton_analogico() {////switch case
       if (ajustandoalgo) {
         if (ajustandominuto) {
           ajustar_hora();
-        } else if(ajustandohora){
+        } else if (ajustandohora) {
           //salir_de_todo();
           salir_a_menu_inicio();
         }
